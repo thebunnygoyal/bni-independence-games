@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  Trophy, Users, TrendingUp, Award, Calendar, Target, Medal, 
-  BarChart3, PieChart, Activity, Download, ExternalLink, 
-  Database, RefreshCw, Settings, Bell, ChevronDown, 
+import {
+  Trophy, Users, TrendingUp, Award, Calendar, Target, Medal,
+  BarChart3, PieChart, Activity, Download, ExternalLink,
+  Database, RefreshCw, Settings, Bell, ChevronDown,
   Zap, Shield, Crown, Flame, Star, ArrowUp, ArrowDown,
   LineChart, FileSpreadsheet, Cloud, CheckCircle, AlertCircle,
   Swords, Clock, Gift, Sparkles, Coins, GamepadIcon, Play
@@ -62,8 +62,8 @@ class ErrorBoundary extends React.Component {
           <div className="text-center">
             <Trophy className="w-16 h-16 text-red-600 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
             >
               Reload Page
@@ -223,17 +223,30 @@ const IndependenceGames = () => {
     try {
       setAppState(prev => ({ ...prev, loading: true }));
       const response = await api.getGameData();
-      setGameData(response.data);
-      setAppState(prev => ({ 
-        ...prev, 
-        loading: false,
-        currentWeek: response.data.metadata.currentWeek 
-      }));
+
+      // Check if the API returned the expected data structure
+      if (response.data && response.data.metadata) {
+        setGameData(response.data);
+        setAppState(prev => ({
+          ...prev,
+          loading: false,
+          currentWeek: response.data.metadata.currentWeek
+        }));
+      } else {
+        // If the data is not in the expected format, trigger the fallback
+        throw new Error("Invalid data format from API");
+      }
     } catch (error) {
       console.error('Failed to load game data:', error);
       // Use fallback data for demo
-      setGameData(generateFallbackData());
-      setAppState(prev => ({ ...prev, loading: false }));
+      const fallbackData = generateFallbackData();
+      setGameData(fallbackData);
+      setAppState(prev => ({ 
+        ...prev, 
+        loading: false,
+        // Ensure currentWeek is set from the fallback data
+        currentWeek: fallbackData.metadata.currentWeek 
+      }));
     }
   };
 
